@@ -27,23 +27,20 @@ import datetime
 
 with st.form("my_form"):
     st.write("Inside the form")
-    d = st.date_input('Date', datetime.date())
-    t = st.time_input('Time', datetime.time())
-    dt = d + t
+    d = st.date_input('Date', datetime.date(2019, 7, 6))
+    t = st.time_input('Time', datetime.time(8, 45))
+    dt = f'{d} {t}'
 
-    pickup_lat = st.number_input('Pickup latitude: ')
-    pickup_lon = st.number_input('Pickup longtitude: ',)
-    location = pd.DataFrame(pickup_lat, pickup_lon, columns=['lat', 'lon'])
+    pickup_lat = st.number_input('Pickup latitude: ', value=(40.783282))
+    pickup_lon = st.number_input('Pickup longtitude: ', value=(-73.950655))
 
-    dropoff_lon = st.number_input('Dropoff longtitude: ',)
-    dropoff_lat = st.number_input('Dropoff latitude: ')
-    location.loc[len(location.index)] = [dropoff_lat, dropoff_lon]
+    dropoff_lat = st.number_input('Dropoff latitude: ', value=(40.769802))
+    dropoff_lon = st.number_input('Dropoff longtitude: ', value=(-73.984365))
 
-    passenger = st.number_input('Passengers: ')
+    passenger = st.number_input('Passengers: ', value=(2))
 
     st.form_submit_button('Submit my picks')
 
-st.map(location)
 
 '''
 ## Once we have these, let's call our API in order to retrieve a prediction
@@ -73,11 +70,16 @@ import requests
 
 #params
 params = {
-
+    'pickup_datetime': dt,
+    'pickup_longitude': pickup_lon,
+    'pickup_latitude': pickup_lat,
+    'dropoff_longitude': dropoff_lon,
+    'dropoff_latitude': dropoff_lat,
+    'passenger_count': passenger
 }
 
 response = requests.get(url, params=params)
 data = response.json()
-pred = data['fare']
+pred = round(data['fare'],2)
 
 st.write(f'The predicted taxi fare is ${pred}.')
